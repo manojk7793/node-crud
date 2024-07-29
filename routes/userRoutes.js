@@ -23,6 +23,8 @@ router.post('/users', userValidation, (req, res) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
+        /*const errorsArray = errors.array();
+        return res.status(400).json({ validationErrors: errorsArray });*/
         const errorMessages = errors.array().map(error => error.msg);
         return res.status(400).json({ validationErrors: errorMessages });
     }
@@ -59,6 +61,8 @@ router.put('/users/:id', userValidation, (req, res) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
+        /*const errorsArray = errors.array();
+        return res.status(400).json({ validationErrors: errorsArray });*/
         const errorMessages = errors.array().map(error => error.msg);
         return res.status(400).json({ validationErrors: errorMessages });
     }
