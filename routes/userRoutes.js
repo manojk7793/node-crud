@@ -61,20 +61,21 @@ router.post('/users', upload.single('image'), userValidation, async (req, res) =
 });
 
 // List One User Information
-router.get('/users/:id', (req, res) => {
-    const { id } = req.params;
-    userModel.getUserById(id, (err, results) => {
-        if (err) return res.status(500).send(err);
-        if (results.length === 0) return res.status(404).send({ message: 'User not found' });
-        res.status(200).send({
-            message: 'User Fetched Successfully!!!',
-            data: results[0]
-        });
-    });
+router.get('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Update the user information
-router.put('/users/:id', upload.single('image'), userValidation, (req, res) => {
+router.put('/users/:id', upload.single('image'), userValidation, async (req, res) => {
 
     const errors = validationResult(req);
     
@@ -83,37 +84,38 @@ router.put('/users/:id', upload.single('image'), userValidation, (req, res) => {
         return res.status(400).json({ validationErrors: errorMessages });
     }
 
-    const { id } = req.params;
-    const userData = req.body;
-    if (req.file) {
-        userData.image = req.file.filename; // Add the uploaded file's name to userData
-    }
-    userModel.updateUser(id, userData, (err, results) => {
-        if (err) return res.status(500).send(err);
-        if (results.affectedRows === 0) {
-            return res.status(404).send({ message: 'User not found' });
+    try {
+        const user = await User.findByPk(req.params.id);
+        
+        const userData = req.body;
+        if (req.file) {
+            userData.image = req.file.filename; // Add the uploaded file's name to userData
         }
-        res.status(200).send({
-            message: 'User Updated Successfully!!!',
-            data: {
-                id: id, ...results
-            }
-        });
-    });
+        
+        if (user) {
+            const updatedUser = await user.update(userData);
+            res.json(updatedUser);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Delete the User
-router.delete('/users/:id', (req, res) => {
-    const { id } = req.params;
-    userModel.deleteUserById(id, (err, results) => {
-        if (err) return res.status(500).send(err);
-        if (results.affectedRows === 0) {
-            return res.status(404).send({ message: 'User not found' });
+router.delete('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (user) {
+            await user.destroy();
+            res.status(204).send();
+        } else {
+            res.status(404).json({ error: 'User not found' });
         }
-        res.status(200).send({
-            message: 'User Deleted Successfully!!!',
-        });
-    });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = router;
