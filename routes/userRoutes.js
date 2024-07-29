@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../models/userModel');
+const { validationResult } = require('express-validator');
+const userValidation  = require('../validators/userValidation');
 
 // List Users
 router.get('/users', (req, res) => {
@@ -16,16 +18,22 @@ router.get('/users', (req, res) => {
 });
 
 // Create a new User
-router.post('/users', (req, res) => {
-    const { name, email } = req.body;
-    userModel.createUser(name, email, (err, results) => {
+router.post('/users', userValidation, (req, res) => {
+    
+    const errors = validationResult(req);
+    
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg);
+        return res.status(400).json({ validationErrors: errorMessages });
+    }
+
+    const userData = req.body;
+    userModel.createUser(userData, (err, results) => {
         if (err) return res.status(500).send(err);
         res.status(201).send({
             message: 'User Inserted Successfully!!!',
             data: {
                 id: results.insertId,
-                name: name,
-                email: email,
                 ...results
             }
         });
@@ -46,10 +54,18 @@ router.get('/users/:id', (req, res) => {
 });
 
 // Update the user information
-router.put('/users/:id', (req, res) => {
+router.put('/users/:id', userValidation, (req, res) => {
+
+    const errors = validationResult(req);
+    
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg);
+        return res.status(400).json({ validationErrors: errorMessages });
+    }
+
     const { id } = req.params;
-    const { name, email } = req.body;
-    userModel.updateUser(id, name, email, (err, results) => {
+    const userData = req.body;
+    userModel.updateUser(id, userData, (err, results) => {
         if (err) return res.status(500).send(err);
         if (results.affectedRows === 0) {
             return res.status(404).send({ message: 'User not found' });
@@ -57,7 +73,7 @@ router.put('/users/:id', (req, res) => {
         res.status(200).send({
             message: 'User Updated Successfully!!!',
             data: {
-                id: id, name: name, email: email
+                id: id, ...results
             }
         });
     });

@@ -5,9 +5,10 @@ const getAllUsers = (callback) => {
     connection.query(query, callback);
 };
 
-const createUser = (name, email, callback) => {
+const createUser = (userData, callback) => {
     const query = 'INSERT INTO users (name, email) VALUES (?, ?)';
-    connection.query(query, [name, email], callback);
+    const values = [userData.name, userData.email]; // Prepare the values
+    connection.query(query, values, callback);
   };
 
 const getUserById = (id, callback) => {
@@ -15,9 +16,10 @@ const getUserById = (id, callback) => {
     connection.query(query, [id], callback);
 };
 
-const updateUser = (id, name, email, callback) => {
+const updateUser = (id, userData, callback) => {
     const query = 'UPDATE users SET name = ?, email = ? WHERE id = ?';
-    connection.query(query, [name, email, id], callback);
+    const values = [userData.name, userData.email, id]; // Prepare the values
+    connection.query(query, values, callback);
 };
 
 const deleteUserById = (id, callback) => {

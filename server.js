@@ -2,14 +2,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const userRoutes = require('./routes/userRoutes');
-const userInfo = require('./routes/userInfo');
 
 const app = express();
-const PORT = 3001;
+const PORT = 3000;
 
 app.use(bodyParser.json());
 app.use('/api', userRoutes);
-app.use('/api', userInfo);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
