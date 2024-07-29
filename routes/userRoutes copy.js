@@ -28,17 +28,20 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // List Users
-router.get('/users', async(req, res) => {
-    try {
-        const users = await User.findAll();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-})
+router.get('/users', (req, res) => {
+    userModel.getAllUsers((err, results) => {
+        if (err) return res.status(500).send(err);
+        if (results.length === 0) return res.status(404).send({ message: 'Users not found' });
+        res.status(200).send({
+            message: 'Users Fetched Successfully!!!',
+            data: results
+        });
+    });
+});
+
 
 // Create a new User
-router.post('/users', upload.single('image'), userValidation, async (req, res) => {
+const createUser = router.post('/users', upload.single('image'), userValidation, (req, res) => {
     
     const errors = validationResult(req);
     
@@ -52,12 +55,26 @@ router.post('/users', upload.single('image'), userValidation, async (req, res) =
         userData.image = req.file.filename; // Add the uploaded file's name to userData
     }
     try {
-
         const newUser = await User.create(userData);
         res.status(201).json(newUser);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+
+    /*const userData = req.body;
+    if (req.file) {
+        userData.image = req.file.filename; // Add the uploaded file's name to userData
+    }
+    userModel.createUser(userData, (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.status(201).send({
+            message: 'User Inserted Successfully!!!',
+            data: {
+                id: results.insertId,
+                ...results
+            }
+        });
+    });*/
 });
 
 // List One User Information
