@@ -4,6 +4,8 @@ const sequelize = new Sequelize('learn_crud', 'root', 'root', {
     dialect: 'mysql' // or 'postgres', 'sqlite', etc.
 });
 
+const Profile = require('./Profile'); // Adjust the path if needed
+
 const User = sequelize.define('users', {
     name: {
         type: DataTypes.STRING,
@@ -20,6 +22,12 @@ const User = sequelize.define('users', {
     }
 }, {
     timestamps: false
+});
+
+sequelize.sync().then(() => {
+    console.log('User Table Created');
+}).catch((error) => {
+    console.log('Unable to create User Table - '+error);
 });
 
 module.exports = User;

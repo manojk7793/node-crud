@@ -7,7 +7,9 @@ const userValidation  = require('../validators/userValidation');
 const multer = require('multer');
 const fs = require('fs');
 
-const User = require('../models/User');
+const User      = require('../models/User');
+const Profile   = require('../models/Profile');
+require('../models/association'); // This should be after the models
  
 // Ensure the 'uploads' directory exists with 777 permissions
 const uploadDir = 'uploads/';
@@ -30,7 +32,13 @@ const upload = multer({ storage: storage });
 // List Users
 router.get('/users', async(req, res) => {
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            include: {
+                model: Profile,
+                as: 'profile', // Use the alias if you have defined one in the model
+                required: false // Change to true if you want to return only users with profiles
+            }
+        });
         res.json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
