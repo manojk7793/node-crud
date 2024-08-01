@@ -24,6 +24,8 @@ const User = sequelize.define('users', {
     timestamps: false
 });
 
+User.hasOne(Profile, { foreignKey: 'user_id', as: 'profile' });
+
 sequelize.sync().then(() => {
     console.log('User Table Created');
 }).catch((error) => {

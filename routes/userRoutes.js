@@ -9,7 +9,6 @@ const fs = require('fs');
 
 const User      = require('../models/User');
 const Profile   = require('../models/Profile');
-require('../models/association'); // This should be after the models
  
 // Ensure the 'uploads' directory exists with 777 permissions
 const uploadDir = 'uploads/';
