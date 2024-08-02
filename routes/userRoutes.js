@@ -1,11 +1,11 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const userModel = require('../models/userModel');
 const { validationResult } = require('express-validator');
 const userValidation  = require('../validators/userValidation');
 const multer = require('multer');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 const User      = require('../models/User');
 const Profile   = require('../models/Profile');
@@ -55,6 +55,14 @@ router.post('/users', upload.single('image'), userValidation, async (req, res) =
     }
 
     const userData = req.body;
+    if (userData.password) {
+        try {
+            const salt = await bcrypt.genSalt(10); // Generate a salt
+            userData.password = await bcrypt.hash(userData.password, salt); // Hash the password
+        } catch (error) {
+            return res.status(500).json({ error: 'Error hashing password' });
+        }
+    }
     if (req.file) {
         userData.image = req.file.filename; // Add the uploaded file's name to userData
     }

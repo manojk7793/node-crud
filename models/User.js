@@ -16,6 +16,10 @@ const User = sequelize.define('users', {
         allowNull: false,
         unique: true,
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     image: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -26,7 +30,7 @@ const User = sequelize.define('users', {
 
 User.hasOne(Profile, { foreignKey: 'user_id', as: 'profile' });
 
-sequelize.sync().then(() => {
+sequelize.sync({ force: true }).then(() => {
     console.log('User Table Created');
 }).catch((error) => {
     console.log('Unable to create User Table - '+error);
